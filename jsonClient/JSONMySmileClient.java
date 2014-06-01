@@ -1,14 +1,23 @@
 package ua.com.mysmile.jsonClient;
 
 import org.json.*;
-
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.*;
 
 import ua.com.mysmile.*;
 
 public class JSONMySmileClient extends MySmileClient<JSONObject> {
-
+	
+	/**
+	 * The map of the request properties
+	 */
+	private Map<String,String> props = null;
+	
+	/**
+	 * Constructor with default ParserFactory contained json and xml parsers.
+	 */
 	public JSONMySmileClient(URL endpoint, String resString) {
 		this.factory = new JSONParseFactory();
 		this.factory.addParser(new JSONParser(), "application/json");
@@ -16,11 +25,49 @@ public class JSONMySmileClient extends MySmileClient<JSONObject> {
 		this.endpoint = endpoint;
 		resource = new Resource(resString);
 	}
+	
+	/**
+	 * Establish HTTP connection to the web-service. Add the request    
+	 * properties from the map <Code>props</Conde>. The new properties from 
+	 * the prop will be added. The request connection properties by default 
+	 * will be changed if <Code>props</Code> contains them. 
+	 */
+	@Override 
+	public HttpURLConnection getHttpConnectinon() throws IOException {
+		URL reqURL = new URL(endpoint, resource.constructResourceString());
+		HttpURLConnection con  = (HttpURLConnection) reqURL.openConnection();
+		con.disconnect();
+		if(props!=null) {
+			Set<Map.Entry<String,String>> entries = props.entrySet();
+			for(Map.Entry<String, String> entry: entries ) {
+				con.setRequestProperty(entry.getKey(), entry.getValue());
+			}
+		}
+		con.connect();
+		return con;
+	}
+	
+	/**
+	 * @return the request properties
+	 */
+	public Map<String,String> getRequestProperties() {
+		return props;
+	}
+	
+	/**
+	 * Set the request properties
+	 * 
+	 * @param map -- the request properties
+	 */
+	public void setRequestProperties(Map<String,String> map) {
+		props = map;
+	}
+	
     /**
      * Simple client to the site on MySmile site.
-     * Show lists of all site languages, menus and as well as contact information of the site.   
+     * Show lists of all site languages and menus and as well as contact information of the site.   
      * 
-     * @param args -- url to the MySmile site api
+     * @param args -- URL to the MySmile site API
      */
 	public static void main(String[] args) {
 		try {
@@ -36,9 +83,14 @@ public class JSONMySmileClient extends MySmileClient<JSONObject> {
 			System.out.println("Site: " + endpoint.toString() );
 			JSONMySmileClient client = new JSONMySmileClient(endpoint, "");
             Resource resource = client.getResource();
-            // Format of response must be JSON
+            
+            // Configuration of Client
             resource.setParam("format", "json");
-			
+       /*     Map<String,String> reqProp = new TreeMap<String,String>();
+            reqProp.put("timeout", "5");
+            reqProp.put("connecttimeout", "5");
+			client.setRequestProperties(reqProp);/**/
+            
 			//Print languages of the site: 
             resource.setMainResource("language");
 			JSONArray lang = client.request().getJSONArray("data");

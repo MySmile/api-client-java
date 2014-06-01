@@ -65,14 +65,23 @@ public class MySmileClient<ParserObject> {
 	}
 
 	/**
+	 * 
+	 * @return HTTP connection to the web-service
+	 * @throws IOException
+	 */
+	public HttpURLConnection getHttpConnectinon() throws IOException {
+		URL reqURL = new URL(endpoint, resource.constructResourceString());
+		return (HttpURLConnection) reqURL.openConnection();
+	}
+
+	/**
 	 * Make the request to the web-service and parse response to ParserObject.
 	 * 
 	 * @return ParserObject of response from the web-service
 	 * @throws IOException
 	 */
 	public ParserObject request() throws IOException {
-		URL reqURL = new URL(endpoint, resource.constructResourceString());
-		HttpURLConnection con = (HttpURLConnection) reqURL.openConnection();
+		HttpURLConnection con = getHttpConnectinon();
 		if (con.getResponseCode() != 200)
 			throw new java.lang.IllegalStateException(
 					"The code of response doesn't equal to 200");

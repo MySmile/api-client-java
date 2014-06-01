@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Resource is the class to represent the resource part of URL to access to a
+ * Resource is the class to represent the resource part of URL for access to a
  * web-service or a web-site. It contains directly the resource, parameters of
  * GET request and fragment id.
  * 
