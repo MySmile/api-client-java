@@ -10,10 +10,6 @@ import ua.com.mysmile.*;
 
 public class JSONMySmileClient extends MySmileClient<JSONObject> {
 	
-	/**
-	 * The map of the request properties
-	 */
-	private Map<String,String> props = null;
 	
 	/**
 	 * Constructor with default ParserFactory contained json and xml parsers.
@@ -26,42 +22,6 @@ public class JSONMySmileClient extends MySmileClient<JSONObject> {
 		resource = new Resource(resString);
 	}
 	
-	/**
-	 * Establish HTTP connection to the web-service. Add the request    
-	 * properties from the map <Code>props</Conde>. The new properties from 
-	 * the prop will be added. The request connection properties by default 
-	 * will be changed if <Code>props</Code> contains them. 
-	 */
-	@Override 
-	public HttpURLConnection getHttpConnectinon() throws IOException {
-		URL reqURL = new URL(endpoint, resource.constructResourceString());
-		HttpURLConnection con  = (HttpURLConnection) reqURL.openConnection();
-		con.disconnect();
-		if(props!=null) {
-			Set<Map.Entry<String,String>> entries = props.entrySet();
-			for(Map.Entry<String, String> entry: entries ) {
-				con.setRequestProperty(entry.getKey(), entry.getValue());
-			}
-		}
-		con.connect();
-		return con;
-	}
-	
-	/**
-	 * @return the request properties
-	 */
-	public Map<String,String> getRequestProperties() {
-		return props;
-	}
-	
-	/**
-	 * Set the request properties
-	 * 
-	 * @param map -- the request properties
-	 */
-	public void setRequestProperties(Map<String,String> map) {
-		props = map;
-	}
 	
     /**
      * Simple client to the site on MySmile site.
@@ -106,11 +66,11 @@ public class JSONMySmileClient extends MySmileClient<JSONObject> {
 			for (int i = 0; i < lang.length(); i++) {
 				String l = lang.optString(i);
 				resource.setParam("lang", l);
-				JSONObject menus = client.request().getJSONObject("data");
+				JSONArray menus = client.request().getJSONArray("data");
 				if(i != 0) System.out.println(delim2);
 				System.out.println("List of menus by " + l + ": ");
-				for(int j = 10; j< menus.length()*10; j = j + 10) {
-					JSONObject menu = menus.getJSONObject(Integer.toString(j));
+				for(int j = 0; j< menus.length(); j++) {
+					JSONObject menu = menus.getJSONObject(j);
 					System.out.println("  - " + menu.optString(JSONObject.getNames(menu)[0]) );
 				}
 			}
